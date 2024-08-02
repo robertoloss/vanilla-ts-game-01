@@ -13,7 +13,7 @@ const gameMap = [
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
@@ -38,6 +38,7 @@ player.position.top = (gameMap.length - 3) * TILE_SIZE;
 let tilesArray = [];
 let tilesHashMap = {};
 initializeControls(player);
+const debug = document.getElementById('debug');
 function drawMap(gameMap) {
     tilesArray = [];
     tilesHashMap = {};
@@ -64,20 +65,18 @@ function drawMap(gameMap) {
             }
         });
     });
-    const debug = document.getElementById('debug');
     const gameScreen = document.getElementById('game-screen');
     if (gameScreen) {
-        console.log(gameScreen);
         gameScreen.innerHTML = '';
         gameScreen.style.width = `${gameMap[0].length * TILE_SIZE}px`;
         gameScreen.style.height = `${gameMap.length * TILE_SIZE}px`;
         gameScreen.style.overflow = 'hidden';
+        gameScreen.innerHTML = '';
         if (debug) {
             gameScreen === null || gameScreen === void 0 ? void 0 : gameScreen.appendChild(debug);
             debug.style.position = 'absolute';
             debug.style.zIndex = '100';
         }
-        gameScreen.innerHTML = '';
         tilesArray.forEach(tile => gameScreen.appendChild(tile.div));
     }
 }
@@ -87,7 +86,6 @@ let playerDiv = document.getElementById('player');
 const gameScreen = document.getElementById('game-screen');
 function renderPlayer() {
     if (!(playerDiv === null || playerDiv === void 0 ? void 0 : playerDiv.style.top)) {
-        console.log("no player div");
         playerDiv = document.createElement('div');
         playerDiv.id = 'player';
         playerDiv.style.position = 'absolute';
@@ -107,11 +105,14 @@ function renderPlayer() {
 }
 renderPlayer();
 const showDebug = true;
-const currMapIsOne = currentMap === 1;
 function animate() {
+    const currMapIsOne = currentMap === 1;
     const ppTop527 = player.position.top > 527;
     const ppLefOk = (player.position.left > TILE_SIZE * gameMap[0].length - 20);
     let changeMapToTwo = currMapIsOne && ppTop527 && ppLefOk;
+    const currMapIsTwo = currentMap === 2;
+    const ppLefOk2 = player.position.left < -TILE_SIZE;
+    let changeMapToOne = currMapIsTwo && ppTop527 && ppLefOk2;
     if (showDebug) {
         const debug = document.getElementById('debug');
         if (debug)
@@ -151,12 +152,21 @@ function animate() {
     }
     if (changeMapToTwo) {
         changeMapToTwo = false;
+        currentMap = 2;
         drawMap(gameMap2);
         tilesArray = [];
         playerDiv = null;
         renderPlayer();
         player.position.left = 0;
-        console.log(tilesArray);
+    }
+    if (changeMapToOne) {
+        changeMapToOne = false;
+        currentMap = 1;
+        drawMap(gameMap);
+        tilesArray = [];
+        playerDiv = null;
+        renderPlayer();
+        player.position.left = (gameMap[0].length * TILE_SIZE) - (TILE_SIZE * 2);
     }
     requestAnimationFrame(animate);
 }
