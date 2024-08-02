@@ -1,5 +1,5 @@
-export var TILE_SIZE = 48;
-export var player = {
+export const TILE_SIZE = 48;
+export const player = {
     position: {
         top: 448,
         left: 112,
@@ -13,6 +13,7 @@ export var player = {
         left: 0
     },
     move: {
+        last: 'none',
         left: false,
         right: false
     }

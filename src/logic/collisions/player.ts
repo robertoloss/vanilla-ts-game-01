@@ -55,7 +55,7 @@ export function checkPlayerCollisionsVertical({ player, tilesHashMap }: Props) {
 			console.log("top collision: ", topLeft, topRight)
 		}
 		else {
-			player.position.top = (bottomLeft[0] * TILE_SIZE) - (TILE_SIZE + 0.5) 
+			player.position.top = (bottomLeft[0] * TILE_SIZE) - (TILE_SIZE + 0.1) 
 			//console.log("bottom collision: ", bottomLeft, bottomRight, player.speed.vertical)
 		}
 	} 
@@ -95,7 +95,7 @@ export function checkPlayerCollisionsHorizontal({ player, tilesHashMap }: Props)
 			console.log("left collision: ", leftTop, leftBottom)
 		}
 		else {
-			player.position.left = rightBottom[1] * TILE_SIZE - (TILE_SIZE + 0.5)
+			player.position.left = rightBottom[1] * TILE_SIZE - (TILE_SIZE + 0.1)
 			console.log("right collision: ", rightTop, rightBottom, player.position.left)
 		}
 	}

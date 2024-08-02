@@ -5,18 +5,17 @@ function getTile(y, x) {
 function str(arr) {
     return JSON.stringify(arr);
 }
-export function checkPlayerCollisionsVertical(_a) {
-    var player = _a.player, tilesHashMap = _a.tilesHashMap;
-    var pTop = player.position.top;
-    var pBottom = player.position.top + TILE_SIZE;
-    var pLeft = player.position.left;
-    var pRight = player.position.left + TILE_SIZE;
-    var vSpeed = player.speed.vertical;
-    var topLeft = getTile(pTop + vSpeed, pLeft);
-    var topRight = getTile(pTop + vSpeed, pRight);
-    var bottomLeft = getTile(pBottom + vSpeed, pLeft);
-    var bottomRight = getTile(pBottom + vSpeed, pRight);
-    var collision = {
+export function checkPlayerCollisionsVertical({ player, tilesHashMap }) {
+    const pTop = player.position.top;
+    const pBottom = player.position.top + TILE_SIZE;
+    const pLeft = player.position.left;
+    const pRight = player.position.left + TILE_SIZE;
+    const vSpeed = player.speed.vertical;
+    const topLeft = getTile(pTop + vSpeed, pLeft);
+    const topRight = getTile(pTop + vSpeed, pRight);
+    const bottomLeft = getTile(pBottom + vSpeed, pLeft);
+    const bottomRight = getTile(pBottom + vSpeed, pRight);
+    const collision = {
         top: false,
         bottom: false,
     };
@@ -34,24 +33,23 @@ export function checkPlayerCollisionsVertical(_a) {
             console.log("top collision: ", topLeft, topRight);
         }
         else {
-            player.position.top = (bottomLeft[0] * TILE_SIZE) - (TILE_SIZE + 0.5);
+            player.position.top = (bottomLeft[0] * TILE_SIZE) - (TILE_SIZE + 0.1);
             //console.log("bottom collision: ", bottomLeft, bottomRight, player.speed.vertical)
         }
     }
     return collision.top || collision.bottom;
 }
-export function checkPlayerCollisionsHorizontal(_a) {
-    var player = _a.player, tilesHashMap = _a.tilesHashMap;
-    var pTop = player.position.top;
-    var pBottom = player.position.top + TILE_SIZE;
-    var pLeft = player.position.left;
-    var pRight = player.position.left + TILE_SIZE;
-    var hSpeed = player.speed.horizontal;
-    var leftTop = getTile(pTop, pLeft + hSpeed);
-    var leftBottom = getTile(pBottom, pLeft + hSpeed);
-    var rightTop = getTile(pTop, pRight + hSpeed);
-    var rightBottom = getTile(pBottom, pRight + hSpeed);
-    var collision = {
+export function checkPlayerCollisionsHorizontal({ player, tilesHashMap }) {
+    const pTop = player.position.top;
+    const pBottom = player.position.top + TILE_SIZE;
+    const pLeft = player.position.left;
+    const pRight = player.position.left + TILE_SIZE;
+    const hSpeed = player.speed.horizontal;
+    const leftTop = getTile(pTop, pLeft + hSpeed);
+    const leftBottom = getTile(pBottom, pLeft + hSpeed);
+    const rightTop = getTile(pTop, pRight + hSpeed);
+    const rightBottom = getTile(pBottom, pRight + hSpeed);
+    const collision = {
         left: false,
         right: false
     };
@@ -69,7 +67,7 @@ export function checkPlayerCollisionsHorizontal(_a) {
             console.log("left collision: ", leftTop, leftBottom);
         }
         else {
-            player.position.left = rightBottom[1] * TILE_SIZE - (TILE_SIZE + 0.5);
+            player.position.left = rightBottom[1] * TILE_SIZE - (TILE_SIZE + 0.1);
             console.log("right collision: ", rightTop, rightBottom, player.position.left);
         }
     }

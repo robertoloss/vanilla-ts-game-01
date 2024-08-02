@@ -3,15 +3,18 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "npm run build && live-server dist --port=8081",
-    "dev": "nodemon --watch src --ext ts,html,css --exec \"npm run build\"",
-    "build": "tsc && cp src/index.html src/style.css dist/"
+    "start": "npm run build && concurrently \"npm run watch\" \"npm run serve\"",
+    "serve": "live-server dist --port=8081",
+    "watch": "nodemon --watch src --ext ts,html,css --exec \"npm run build\"",
+    "build": "tsc && npm run copy-assets",
+    "copy-assets": "cp src/index.html src/style.css dist/"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "concurrently": "^8.2.2",
     "nodemon": "^3.1.4",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4"

@@ -2,7 +2,25 @@
 
 export const TILE_SIZE: number =48 
 
-export const player = {
+export const player : {
+position: {
+    top: number,
+    left: number,
+	},
+	speed: {
+		vertical: number,
+		horizontal: number
+	},
+	translate: {
+		top: number,
+		left: number
+	},
+	move: {
+		last: 'none' | 'left' | 'right',
+		left: boolean,
+		right: boolean
+	}
+} = {
 	position: {
     top: 448,
     left: 112,
@@ -16,6 +34,7 @@ export const player = {
 		left: 0
 	},
 	move: {
+		last: 'none',
 		left: false,
 		right: false
 	}

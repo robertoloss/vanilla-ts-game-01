@@ -4,7 +4,6 @@ import { initializeControls } from "./logic/controls.js";
 import { TILE_SIZE } from "./logic/types.js";
 
 
-const gameScreen = document.getElementById('game-screen');
 
 
 // 15 width by 10 heights
@@ -18,6 +17,24 @@ const gameMap = [
 	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+	[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+];
+const gameMap2 = [
+	[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+	[1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1],
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 	[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ];
 player.position.left = TILE_SIZE * 2
@@ -29,82 +46,105 @@ type Tile = {
 	},
 	div: HTMLDivElement 
 }
-const tilesArray: Tile[] = []
-const tilesHashMap: { [key: string]: Tile } = {}
+let tilesArray: Tile[] = []
+let tilesHashMap: { [key: string]: Tile } = {}
 export type TilesHashMap = typeof tilesHashMap
 
 initializeControls(player)
+ 
 
-//function movePlayer(axis: 'vertical' | 'horizontal', increase: number) {
-//	player.speed[axis] += increase;
-//	console.log(player.speed)
-//	renderPlayer();
-//}
-gameMap.forEach((row, y) => {
-	row.forEach((square, x) => {
-		if (square === 1) {
-			const tileDiv = document.createElement('div');
-			tileDiv.classList.add('tile');
-			tileDiv.style.position = 'absolute';
-			tileDiv.style.top = `${TILE_SIZE * y}px`;
-			tileDiv.style.left = `${TILE_SIZE * x}px`;
-			tileDiv.style.width = `${TILE_SIZE}px`;
-			tileDiv.style.height = `${TILE_SIZE}px`;
-			const tile: Tile = {
-				position: { 
-					x, 
-					y 
-				},
-				div: tileDiv
+function drawMap(gameMap: number[][]) {
+	tilesArray = []
+	tilesHashMap = {}
+	gameMap.forEach((row, y) => {
+		row.forEach((square, x) => {
+			if (square === 1) {
+				const tileDiv = document.createElement('div');
+				tileDiv.classList.add('tile');
+				tileDiv.style.position = 'absolute';
+				tileDiv.style.top = `${TILE_SIZE * y}px`;
+				tileDiv.style.left = `${TILE_SIZE * x}px`;
+				tileDiv.style.width = `${TILE_SIZE}px`;
+				tileDiv.style.height = `${TILE_SIZE}px`;
+				const tile: Tile = {
+					position: { 
+						x, 
+						y 
+					},
+					div: tileDiv
+				}
+				tilesArray.push(tile);
+				const strCoord = JSON.stringify([y,x])
+				tilesHashMap[strCoord] = tile
 			}
-			tilesArray.push(tile);
-			const strCoord = JSON.stringify([y,x])
-			tilesHashMap[strCoord] = tile
-		}
+		});
 	});
-});
-//console.log(tilesHashMap)
+	const debug = document.getElementById('debug')
+	const gameScreen = document.getElementById('game-screen');
+	if (gameScreen) {
+		console.log(gameScreen)
+		gameScreen.innerHTML = '';
+		gameScreen.style.width = `${gameMap[0].length * TILE_SIZE}px`
+		gameScreen.style.height = `${gameMap.length * TILE_SIZE}px`
+		gameScreen.style.overflow = 'hidden'
+		if (debug) {
+			gameScreen?.appendChild(debug)
+			debug.style.position = 'absolute'
+			debug.style.zIndex = '100'
+		}
+		gameScreen.innerHTML = '';
+		tilesArray.forEach(tile => gameScreen.appendChild(tile.div));
+	}
+}
+drawMap(gameMap)
+let currentMap = 1;
 let playerDiv = document.getElementById('player');
 
+const gameScreen = document.getElementById('game-screen')
 function renderPlayer() {
-  if (!playerDiv?.style.top) {
-    playerDiv = document.createElement('div');
-    playerDiv.id = 'player';
-    playerDiv.style.position = 'absolute';
-    playerDiv.style.top = '0px'//`${player.position.top}px`;
-    playerDiv.style.left = '0px'//`${player.position.left}px`;
+	if (!playerDiv?.style.top) {
+		console.log("no player div")
+		playerDiv = document.createElement('div');
+		playerDiv.id = 'player';
+		playerDiv.style.position = 'absolute';
+		playerDiv.style.top = '0px'//`${player.position.top}px`;
+		playerDiv.style.left = '0px'//`${player.position.left}px`;
 		playerDiv.style.width = `${TILE_SIZE}px`
 		playerDiv.style.height = `${TILE_SIZE}px`
 		playerDiv.style.display = 'flex'
 		playerDiv.style.backgroundColor = 'red'
 		playerDiv.style.willChange = 'transform'
-    gameScreen?.appendChild(playerDiv);
-  } else {
+		playerDiv.style.zIndex = '100'
+		gameScreen?.appendChild(playerDiv);
+	} else {
 		playerDiv.style.transform = `translate(${player.position.left}px, ${player.position.top}px)`;
-  }
+	}
 }
 
-const debug = document.getElementById('debug')
-if (gameScreen) {
-  gameScreen.innerHTML = '';
-	if (debug) {
-		gameScreen.appendChild(debug)
-		debug.style.position = 'absolute'
-		debug.style.zIndex = '100'
-	}
-  tilesArray.forEach(tile => gameScreen.appendChild(tile.div));
-  renderPlayer();
-}
+renderPlayer();
+
 
 const showDebug = true
+const currMapIsOne = currentMap === 1
 
 function animate() {
-	if (debug && showDebug) debug.innerHTML = `
-		player.move.right: <span class="highlighted-text">${player.move.right}</span><br>
-		player.move.left: <span class="highlighted-text">${player.move.left}</span><br>
-		player.position.left: <span class="highlighted-text">${player.position.left}</span><br>
-		player.position.top: <span class="highlighted-text">${player.position.top}</span><br>
-	`
+	const ppTop527 = player.position.top > 527
+	const ppLefOk = (player.position.left > TILE_SIZE * gameMap[0].length - 20)
+	let changeMapToTwo = currMapIsOne && ppTop527 && ppLefOk
+
+	if (showDebug) { 
+		const debug = document.getElementById('debug')
+		if (debug) debug.innerHTML = `
+			player.move.right: <span class="highlighted-text">${player.move.right}</span><br>
+			player.move.left: <span class="highlighted-text">${player.move.left}</span><br>
+			player.position.left: <span class="highlighted-text">${player.position.left}</span><br>
+			player.position.top: <span class="highlighted-text">${player.position.top}</span><br>
+			changeMapToOne: <span class="highlighted-text">${changeMapToTwo}</span><br>
+			currentMap === 1: <span class="highlighted-text">${currMapIsOne}</span><br>
+			pp top: <span class="highlighted-text">${ppTop527}</span><br>
+			pp left: <span class="highlighted-text">${ppLefOk}</span><br>
+		` 
+	}
 	const collistionVertical = checkPlayerCollisionsVertical({ player, tilesHashMap })
   if (!collistionVertical) player.position.top += player.speed.vertical;
 
@@ -117,9 +157,26 @@ function animate() {
 		player.speed.vertical += 0.5;
 	}
 
-	if (player.move.right) player.speed.horizontal = 5
-	if (player.move.left) player.speed.horizontal = -5
-	if (!player.move.left && !player.move.right) player.speed.horizontal = 0
+	if (player.move.right && player.move.left) {
+		player.speed.horizontal = player.move.last === 'left' ? -5 : 5
+	} else if (player.move.right) { 
+		player.speed.horizontal = 5
+	} else if (player.move.left) {
+		player.speed.horizontal = -5
+	} else {
+		player.speed.horizontal = 0
+		player.move.last = 'none'
+	}
+	
+	if (changeMapToTwo) {
+		changeMapToTwo = false
+		drawMap(gameMap2)
+		tilesArray = []
+		playerDiv = null
+		renderPlayer()
+		player.position.left = 0
+		console.log(tilesArray)
+	}
 
   requestAnimationFrame(animate);
 }
