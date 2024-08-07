@@ -4,15 +4,14 @@ import { TILE_SIZE } from "../types.js"
 type Props = {
 	player: Player,
 	tilesHashMap: {
-			[key: string]: {
-		position: {
-			x: number,
-			y: number
-		},
-		div: HTMLDivElement 
+		[key: string]: {
+			position: {
+				x: number,
+				y: number
+			},
+			div: HTMLDivElement 
+		}
 	}
-}
-
 }
 
 

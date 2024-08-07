@@ -52,7 +52,7 @@ function createMap(gameMap: (number | undefined)[][], map: Map) {
 					div: tileDiv
 				}
 				tilesArray.push(tile);
-				const strCoord = JSON.stringify([y,x])
+				const strCoord = JSON.stringify([yyy,xxx])
 				tilesHashMap[strCoord] = tile
 			}
 			xxx += 1
@@ -88,7 +88,6 @@ const gameScreen = document.getElementById('game-screen')
 
 function renderPlayer(recreate?: boolean) {
 	if (!playerDiv?.style.top || recreate) {
-		console.log("no playerDiv")
 		playerDiv = document.createElement('div');
 		playerDiv.id = 'player';
 		playerDiv.style.position = 'absolute';
@@ -103,7 +102,6 @@ function renderPlayer(recreate?: boolean) {
 		gameScreen?.appendChild(playerDiv);
 	} else {
 		playerDiv.style.transform = `translate(${player.position.left}px, ${player.position.top}px)`;
-		console.log("player transformed")
 	}
 }
 
@@ -144,12 +142,34 @@ function animate() {
 	}
 
 	if (player.position.left > (16 * TILE_SIZE)) {
-		player.position.left = TILE_SIZE
 		map.origin.x += 16
 		createMap(levelMap, map)
 		renderMap(tilesArray)
 		renderPlayer(true)
+		player.position.left = 0
 	}
+	if (player.position.left < -TILE_SIZE) {
+		player.position.left = 15 * TILE_SIZE
+		map.origin.x -= 16
+		createMap(levelMap, map)
+		renderMap(tilesArray)
+		renderPlayer(true)
+	}
+	if (player.position.top > (16 * TILE_SIZE)) {
+		player.position.top = 0 
+		map.origin.y += 16
+		createMap(levelMap, map)
+		renderMap(tilesArray)
+		renderPlayer(true)
+	}
+	if (player.position.top < -TILE_SIZE) {
+		player.position.top = 16 * TILE_SIZE
+		map.origin.y -= 16
+		createMap(levelMap, map)
+		renderMap(tilesArray)
+		renderPlayer(true)
+	}
+
 
 
 
