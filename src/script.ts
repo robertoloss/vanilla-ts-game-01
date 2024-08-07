@@ -2,43 +2,12 @@ import { checkPlayerCollisionsVertical, checkPlayerCollisionsHorizontal } from "
 import { player } from "./logic/types.js";
 import { initializeControls } from "./logic/controls.js";
 import { TILE_SIZE } from "./logic/types.js";
+import { levelMap } from "./map/map.js";
 
+let GRAVITY = 0.5
 
-
-
-// 15 width by 10 heights
-const gameMap = [
-	[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-	[1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1],
-	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-	[1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
-	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-];
-const gameMap2 = [
-	[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-	[1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-];
 player.position.left = TILE_SIZE * 2
-player.position.top = (gameMap.length - 3) * TILE_SIZE
+player.position.top = (16 - 3) * TILE_SIZE
 type Tile = {
 	position: {
 		x: number,
@@ -52,41 +21,58 @@ export type TilesHashMap = typeof tilesHashMap
 
 initializeControls(player)
  
-
 const debug = document.getElementById('debug')
-function drawMap(gameMap: number[][]) {
+
+let map = {
+	origin: {
+		x: 0,
+		y: 0
+	}
+}
+type Map = typeof map
+
+function createMap(gameMap: (number | undefined)[][], map: Map) {
 	tilesArray = []
 	tilesHashMap = {}
-	gameMap.forEach((row, y) => {
-		row.forEach((square, x) => {
-			if (square === 1) {
+	const yy = map.origin.y
+	const xx = map.origin.x
+	let [ yyy, xxx ] = [ 0, 0 ]
+	for (let y = yy; y < yy+16; y++) {
+		for (let x = xx; x < xx+16; x++) {
+			if (gameMap[y][x] === 0) {
 				const tileDiv = document.createElement('div');
 				tileDiv.classList.add('tile');
 				tileDiv.style.position = 'absolute';
-				tileDiv.style.top = `${TILE_SIZE * y}px`;
-				tileDiv.style.left = `${TILE_SIZE * x}px`;
+				tileDiv.style.top = `${TILE_SIZE * yyy}px`;
+				tileDiv.style.left = `${TILE_SIZE * xxx}px`;
 				tileDiv.style.width = `${TILE_SIZE}px`;
 				tileDiv.style.height = `${TILE_SIZE}px`;
 				const tile: Tile = {
-					position: { 
-						x, 
-						y 
-					},
+					position: { x, y },
 					div: tileDiv
 				}
 				tilesArray.push(tile);
 				const strCoord = JSON.stringify([y,x])
 				tilesHashMap[strCoord] = tile
 			}
-		});
-	});
+			xxx += 1
+	 	}
+		xxx = 0
+		yyy += 1
+	}
+}
+
+
+createMap(levelMap, map)
+
+function renderMap(tilesArray: Tile[]) {
 	const gameScreen = document.getElementById('game-screen');
 	if (gameScreen) {
 		gameScreen.innerHTML = '';
-		gameScreen.style.width = `${gameMap[0].length * TILE_SIZE}px`
-		gameScreen.style.height = `${gameMap.length * TILE_SIZE}px`
+		gameScreen.style.width = `${16 * TILE_SIZE}px`
+		gameScreen.style.height = `${16 * TILE_SIZE}px`
 		gameScreen.style.overflow = 'hidden'
-		gameScreen.innerHTML = '';
+		gameScreen.innerHTML = ''; 
 		if (debug) {
 			gameScreen?.appendChild(debug)
 			debug.style.position = 'absolute'
@@ -95,13 +81,14 @@ function drawMap(gameMap: number[][]) {
 		tilesArray.forEach(tile => gameScreen.appendChild(tile.div));
 	}
 }
-drawMap(gameMap)
-let currentMap = 1;
-let playerDiv = document.getElementById('player');
 
+renderMap(tilesArray)
+let playerDiv = document.getElementById('player');
 const gameScreen = document.getElementById('game-screen')
-function renderPlayer() {
-	if (!playerDiv?.style.top) {
+
+function renderPlayer(recreate?: boolean) {
+	if (!playerDiv?.style.top || recreate) {
+		console.log("no playerDiv")
 		playerDiv = document.createElement('div');
 		playerDiv.id = 'player';
 		playerDiv.style.position = 'absolute';
@@ -116,35 +103,21 @@ function renderPlayer() {
 		gameScreen?.appendChild(playerDiv);
 	} else {
 		playerDiv.style.transform = `translate(${player.position.left}px, ${player.position.top}px)`;
+		console.log("player transformed")
 	}
 }
 
 renderPlayer();
-
 const showDebug = true
 
 function animate() {
-	const currMapIsOne = currentMap === 1
-	const ppTop527 = player.position.top > 527
-	const ppLefOk = (player.position.left > TILE_SIZE * gameMap[0].length - 20)
-	let changeMapToTwo = currMapIsOne && ppTop527 && ppLefOk
-
-	const currMapIsTwo = currentMap === 2
-	const ppLefOk2 = player.position.left < -TILE_SIZE 
-	let changeMapToOne = currMapIsTwo && ppTop527 && ppLefOk2
-
 	if (showDebug) { 
-		
 		const debug = document.getElementById('debug')
 		if (debug) debug.innerHTML = `
 			player.move.right: <span class="highlighted-text">${player.move.right}</span><br>
 			player.move.left: <span class="highlighted-text">${player.move.left}</span><br>
 			player.position.left: <span class="highlighted-text">${player.position.left}</span><br>
 			player.position.top: <span class="highlighted-text">${player.position.top}</span><br>
-			changeMapToOne: <span class="highlighted-text">${changeMapToTwo}</span><br>
-			currentMap === 1: <span class="highlighted-text">${currMapIsOne}</span><br>
-			pp top: <span class="highlighted-text">${ppTop527}</span><br>
-			pp left: <span class="highlighted-text">${ppLefOk}</span><br>
 		` 
 	}
 	const collistionVertical = checkPlayerCollisionsVertical({ player, tilesHashMap })
@@ -156,7 +129,7 @@ function animate() {
   renderPlayer();
 
 	if (player.speed.vertical < 20) {
-		player.speed.vertical += 0.5;
+		player.speed.vertical += GRAVITY;
 	}
 
 	if (player.move.right && player.move.left) {
@@ -169,26 +142,22 @@ function animate() {
 		player.speed.horizontal = 0
 		player.move.last = 'none'
 	}
-	
-	if (changeMapToTwo) {
-		changeMapToTwo = false
-		currentMap = 2
-		drawMap(gameMap2)
-		tilesArray = []
-		playerDiv = null
-		renderPlayer()
-		player.position.left = 0
+
+	if (player.position.left > (16 * TILE_SIZE)) {
+		player.position.left = TILE_SIZE
+		map.origin.x += 16
+		createMap(levelMap, map)
+		renderMap(tilesArray)
+		renderPlayer(true)
 	}
-	if (changeMapToOne) {
-		changeMapToOne = false
-		currentMap = 1
-		drawMap(gameMap)
-		tilesArray = []
-		playerDiv = null
-		renderPlayer()
-		player.position.left = (gameMap[0].length * TILE_SIZE) - (TILE_SIZE * 2)
-	}
+
+
+
   requestAnimationFrame(animate);
 }
 
 requestAnimationFrame(animate);
+
+
+
+
