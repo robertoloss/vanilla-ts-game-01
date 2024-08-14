@@ -3,7 +3,7 @@ import { player } from "./logic/types.js";
 import { initializeControls } from "./logic/controls.js";
 import { TILE_SIZE } from "./logic/types.js";
 import { levelMap } from "./map/map.js";
-let GRAVITY = 0.5;
+import { GRAVITY } from "./logic/collisions/player.js";
 player.position.left = TILE_SIZE * 2;
 player.position.top = (16 - 3) * TILE_SIZE;
 let tilesArray = [];
@@ -16,6 +16,7 @@ let map = {
         y: 0
     }
 };
+const showTilesCoordinates = false;
 function createMap(gameMap, map) {
     tilesArray = [];
     tilesHashMap = {};
@@ -32,6 +33,14 @@ function createMap(gameMap, map) {
                 tileDiv.style.left = `${TILE_SIZE * xxx}px`;
                 tileDiv.style.width = `${TILE_SIZE}px`;
                 tileDiv.style.height = `${TILE_SIZE}px`;
+                if (showTilesCoordinates)
+                    tileDiv.innerText = `${yyy}:${xxx}`;
+                tileDiv.style.textAlign = 'center';
+                tileDiv.style.fontSize = '12px';
+                tileDiv.style.display = 'flex';
+                tileDiv.style.flexDirection = 'column';
+                tileDiv.style.justifyContent = 'center';
+                tileDiv.style.alignItems = 'center';
                 const tile = {
                     position: { x, y },
                     div: tileDiv
@@ -58,6 +67,8 @@ function renderMap(tilesArray) {
         if (debug) {
             gameScreen === null || gameScreen === void 0 ? void 0 : gameScreen.appendChild(debug);
             debug.style.position = 'absolute';
+            debug.style.top = `${TILE_SIZE}px`;
+            debug.style.left = `${TILE_SIZE}px`;
             debug.style.zIndex = '100';
         }
         tilesArray.forEach(tile => gameScreen.appendChild(tile.div));
@@ -85,25 +96,47 @@ function renderPlayer(recreate) {
         playerDiv.style.transform = `translate(${player.position.left}px, ${player.position.top}px)`;
     }
 }
+function round(num) {
+    return Math.round(num * 10) / 10;
+}
 renderPlayer();
 const showDebug = true;
+let lastTime = performance.now();
+let frameCount = 0;
+let fps = 0;
 function animate() {
+    frameCount++;
+    const currentTime = performance.now();
+    const deltaTime = (currentTime - lastTime) / 15;
+    lastTime = currentTime;
+    const oldPositionLeft = player.position.left;
+    const collisionHorizontal = checkPlayerCollisionsHorizontal({ player, tilesHashMap });
+    if (!collisionHorizontal) {
+        const newPositionLeft = player.position.left += (player.speed.horizontal * deltaTime);
+        const decimal = (newPositionLeft * 10) / 10;
+        const newPos = player.speed.horizontal > 0 ? Math.floor(decimal) : Math.ceil(decimal);
+        player.position.left = newPos;
+    }
+    const differenceLeft = oldPositionLeft - player.position.left;
+    const collistionVertical = checkPlayerCollisionsVertical({ player, tilesHashMap });
+    if (!collistionVertical) {
+        const newPositionTop = player.position.top += (player.speed.vertical * deltaTime);
+        const decimal = (newPositionTop * 10) / 10;
+        const newPos = player.speed.vertical > 0 ? Math.floor(decimal) : Math.ceil(decimal);
+        player.position.top = newPos;
+    }
     if (showDebug) {
         const debug = document.getElementById('debug');
         if (debug)
             debug.innerHTML = `
+			fps: <span class="highlighted-text">${fps}</span><br>
 			player.move.right: <span class="highlighted-text">${player.move.right}</span><br>
 			player.move.left: <span class="highlighted-text">${player.move.left}</span><br>
 			player.position.left: <span class="highlighted-text">${player.position.left}</span><br>
 			player.position.top: <span class="highlighted-text">${player.position.top}</span><br>
+			differenceLeft <span class="highlighted-text">${differenceLeft}</span><br>
 		`;
     }
-    const collistionVertical = checkPlayerCollisionsVertical({ player, tilesHashMap });
-    if (!collistionVertical)
-        player.position.top += player.speed.vertical;
-    const collisionHorizontal = checkPlayerCollisionsHorizontal({ player, tilesHashMap });
-    if (!collisionHorizontal)
-        player.position.left += player.speed.horizontal;
     renderPlayer();
     if (player.speed.vertical < 20) {
         player.speed.vertical += GRAVITY;
@@ -149,6 +182,7 @@ function animate() {
         renderMap(tilesArray);
         renderPlayer(true);
     }
+    console.log(differenceLeft);
     requestAnimationFrame(animate);
 }
 requestAnimationFrame(animate);

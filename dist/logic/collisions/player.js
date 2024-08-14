@@ -1,4 +1,5 @@
 import { TILE_SIZE } from "../types.js";
+export const GRAVITY = 0.5;
 function getTile(y, x) {
     return [Math.floor(y / TILE_SIZE), Math.floor(x / TILE_SIZE)];
 }
@@ -27,13 +28,14 @@ export function checkPlayerCollisionsVertical({ player, tilesHashMap }) {
     if (vSpeed > 0)
         collision.bottom = checkTile(bottomLeft) || checkTile(bottomRight);
     if (collision.top || collision.bottom) {
-        player.speed.vertical = 0;
         if (collision.top) {
+            console.log("top collision: ", topLeft, topRight, player.position.top);
+            player.speed.vertical = GRAVITY;
             player.position.top = (topLeft[0] * TILE_SIZE) + TILE_SIZE;
-            console.log("top collision: ", topLeft, topRight);
         }
         else {
-            player.position.top = (bottomLeft[0] * TILE_SIZE) - (TILE_SIZE + 0.1);
+            player.speed.vertical = 0;
+            player.position.top = (bottomLeft[0] * TILE_SIZE) - (TILE_SIZE + 0.2);
             //console.log("bottom collision: ", bottomLeft, bottomRight, player.speed.vertical)
         }
     }
@@ -67,8 +69,8 @@ export function checkPlayerCollisionsHorizontal({ player, tilesHashMap }) {
             console.log("left collision: ", leftTop, leftBottom);
         }
         else {
-            player.position.left = rightBottom[1] * TILE_SIZE - (TILE_SIZE + 0.1);
             console.log("right collision: ", rightTop, rightBottom, player.position.left);
+            player.position.left = rightBottom[1] * TILE_SIZE - (TILE_SIZE + 0.2);
         }
     }
     return collision.left || collision.right;
